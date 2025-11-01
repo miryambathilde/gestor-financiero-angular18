@@ -1,0 +1,168 @@
+<div class="productos-container">
+  <h1>Productos Financieros</h1>
+
+  <!-- Filtros -->
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-icon>filter_list</mat-icon>
+      <mat-card-title>Filtros de Búsqueda</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="filtrosForm" class="filters-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar</mat-label>
+          <input matInput formControlName="busqueda" placeholder="Nombre, número de producto..." />
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Producto</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option value="">Todos</mat-option>
+            @for (tipo of tiposProducto; track tipo) {
+              <mat-option [value]="tipo">{{ traducirTipo(tipo) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="">Todos</mat-option>
+            @for (estado of estadosProducto; track estado) {
+              <mat-option [value]="estado">{{ estado }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha Desde</mat-label>
+          <input matInput [matDatepicker]="pickerDesde" formControlName="fechaDesde" />
+          <mat-datepicker-toggle matSuffix [for]="pickerDesde"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDesde></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha Hasta</mat-label>
+          <input matInput [matDatepicker]="pickerHasta" formControlName="fechaHasta" />
+          <mat-datepicker-toggle matSuffix [for]="pickerHasta"></mat-datepicker-toggle>
+          <mat-datepicker #pickerHasta></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-raised-button color="accent" (click)="limpiarFiltros()" type="button">
+          <mat-icon>clear</mat-icon>
+          Limpiar Filtros
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de productos -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-header">
+        <h2>Listado de Productos ({{ totalItems }})</h2>
+        <button mat-raised-button color="primary" routerLink="/contratacion">
+          <mat-icon>add</mat-icon>
+          Contratar Producto
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table
+          mat-table
+          [dataSource]="paginatedData"
+          matSort
+          (matSortChange)="onSortChange($event)"
+          class="productos-table"
+        >
+          <!-- Columna Tipo -->
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+            <td mat-cell *matCellDef="let producto">
+              <div class="tipo-cell">
+                <mat-icon [class]="'tipo-icon ' + producto.tipo.toLowerCase()">
+                  {{ obtenerIconoTipo(producto.tipo) }}
+                </mat-icon>
+                <span>{{ traducirTipo(producto.tipo) }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Nombre -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+            <td mat-cell *matCellDef="let producto">{{ producto.nombre }}</td>
+          </ng-container>
+
+          <!-- Columna Número de Producto -->
+          <ng-container matColumnDef="numeroProducto">
+            <th mat-header-cell *matHeaderCellDef>Número</th>
+            <td mat-cell *matCellDef="let producto" class="numero-producto">
+              {{ producto.numeroProducto }}
+            </td>
+          </ng-container>
+
+          <!-- Columna Estado -->
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+            <td mat-cell *matCellDef="let producto">
+              <mat-chip [color]="obtenerColorEstado(producto.estado)">
+                {{ producto.estado }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Columna Saldo -->
+          <ng-container matColumnDef="saldo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Saldo</th>
+            <td
+              mat-cell
+              *matCellDef="let producto"
+              [class.negative]="producto.saldo < 0"
+              [class.positive]="producto.saldo > 0"
+            >
+              <strong>{{ formatearMoneda(producto.saldo) }}</strong>
+            </td>
+          </ng-container>
+
+          <!-- Columna Fecha de Contratación -->
+          <ng-container matColumnDef="fechaContratacion">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha Contratación</th>
+            <td mat-cell *matCellDef="let producto">
+              {{ producto.fechaContratacion | date: 'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- Columna Acciones -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let producto">
+              <button
+                mat-icon-button
+                color="primary"
+                [routerLink]="['/productos', producto.id]"
+                matTooltip="Ver Detalle"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="producto-row"></tr>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <mat-paginator
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+      >
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

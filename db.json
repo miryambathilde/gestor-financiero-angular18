@@ -1,0 +1,222 @@
+{
+  "productos": [
+    {
+      "id": "1",
+      "tipo": "CUENTA",
+      "nombre": "Cuenta Corriente Principal",
+      "numeroProducto": "ES79 2100 0418 4502 0005 1332",
+      "estado": "ACTIVO",
+      "saldo": 15420.5,
+      "fechaContratacion": "2023-01-15T00:00:00.000Z",
+      "moneda": "EUR",
+      "descripcion": "Cuenta corriente para operaciones diarias"
+    },
+    {
+      "id": "2",
+      "tipo": "CUENTA",
+      "nombre": "Cuenta Ahorro",
+      "numeroProducto": "ES79 2100 0418 4502 0005 1333",
+      "estado": "ACTIVO",
+      "saldo": 25000,
+      "fechaContratacion": "2023-03-20T00:00:00.000Z",
+      "tasaInteres": 1.5,
+      "moneda": "EUR",
+      "descripcion": "Cuenta de ahorro con interés del 1.5%"
+    },
+    {
+      "id": "3",
+      "tipo": "DEPOSITO",
+      "nombre": "Depósito a Plazo Fijo 12 meses",
+      "numeroProducto": "DP-2023-001",
+      "estado": "ACTIVO",
+      "saldo": 50000,
+      "fechaContratacion": "2024-01-10T00:00:00.000Z",
+      "fechaVencimiento": "2025-01-10T00:00:00.000Z",
+      "tasaInteres": 3.2,
+      "moneda": "EUR",
+      "descripcion": "Depósito a plazo fijo con vencimiento en enero 2025"
+    },
+    {
+      "id": "4",
+      "tipo": "PRESTAMO",
+      "nombre": "Préstamo Personal",
+      "numeroProducto": "PR-2023-045",
+      "estado": "ACTIVO",
+      "saldo": -12500,
+      "fechaContratacion": "2023-06-15T00:00:00.000Z",
+      "fechaVencimiento": "2028-06-15T00:00:00.000Z",
+      "tasaInteres": 5.5,
+      "moneda": "EUR",
+      "descripcion": "Préstamo personal a 5 años"
+    },
+    {
+      "id": "5",
+      "tipo": "TARJETA",
+      "nombre": "Tarjeta de Crédito Gold",
+      "numeroProducto": "4532 **** **** 1234",
+      "estado": "ACTIVO",
+      "saldo": -1850.75,
+      "limiteCredito": 6000,
+      "fechaContratacion": "2023-02-01T00:00:00.000Z",
+      "tasaInteres": 18.5,
+      "moneda": "EUR",
+      "descripcion": "Tarjeta de crédito con límite de 6000€"
+    },
+    {
+      "id": "6",
+      "tipo": "TARJETA",
+      "nombre": "Tarjeta de Débito",
+      "numeroProducto": "4532 **** **** 5678",
+      "estado": "ACTIVO",
+      "saldo": 0,
+      "fechaContratacion": "2023-01-15T00:00:00.000Z",
+      "moneda": "EUR",
+      "descripcion": "Tarjeta de débito asociada a cuenta corriente"
+    },
+    {
+      "id": "7",
+      "tipo": "DEPOSITO",
+      "nombre": "Depósito a Plazo Fijo 6 meses",
+      "numeroProducto": "DP-2024-015",
+      "estado": "ACTIVO",
+      "saldo": 20000,
+      "fechaContratacion": "2024-08-01T00:00:00.000Z",
+      "fechaVencimiento": "2025-02-01T00:00:00.000Z",
+      "tasaInteres": 2.8,
+      "moneda": "EUR",
+      "descripcion": "Depósito a plazo fijo con vencimiento en febrero 2025"
+    },
+    {
+      "id": "8",
+      "tipo": "PRESTAMO",
+      "nombre": "Préstamo Hipotecario",
+      "numeroProducto": "PR-2022-120",
+      "estado": "ACTIVO",
+      "saldo": -185000,
+      "fechaContratacion": "2022-05-10T00:00:00.000Z",
+      "fechaVencimiento": "2047-05-10T00:00:00.000Z",
+      "tasaInteres": 2.5,
+      "moneda": "EUR",
+      "descripcion": "Préstamo hipotecario a 25 años"
+    },
+    {
+      "id": "9",
+      "tipo": "CUENTA",
+      "nombre": "Cuenta Nómina",
+      "numeroProducto": "ES79 2100 0418 4502 0005 1334",
+      "estado": "INACTIVO",
+      "saldo": 250,
+      "fechaContratacion": "2020-11-05T00:00:00.000Z",
+      "moneda": "EUR",
+      "descripcion": "Antigua cuenta nómina"
+    },
+    {
+      "id": "f19f",
+      "tipo": "DEPOSITO",
+      "nombre": "gchch",
+      "numeroProducto": "DP-2025-862083",
+      "estado": "ACTIVO",
+      "saldo": 10000,
+      "fechaContratacion": "2025-11-01T21:51:02.083Z",
+      "moneda": "EUR",
+      "tasaInteres": 10,
+      "limiteCredito": 0,
+      "fechaVencimiento": "2028-05-01T20:51:02.083Z"
+    },
+    {
+      "id": "3f15",
+      "tipo": "PRESTAMO",
+      "nombre": "Mi préstamos personal",
+      "numeroProducto": "PR-2025-013934",
+      "estado": "ACTIVO",
+      "saldo": 10000,
+      "fechaContratacion": "2025-11-01T22:26:53.934Z",
+      "moneda": "EUR",
+      "tasaInteres": 5,
+      "limiteCredito": 0,
+      "fechaVencimiento": "2028-05-01T21:26:53.934Z"
+    }
+  ],
+  "movimientos": [
+    {
+      "id": "1",
+      "productoId": "1",
+      "fecha": "2024-10-28T10:30:00.000Z",
+      "concepto": "Nómina Octubre",
+      "monto": 2500,
+      "tipo": "INGRESO",
+      "saldoResultante": 15420.5,
+      "referencia": "NOM-OCT-2024"
+    },
+    {
+      "id": "2",
+      "productoId": "1",
+      "fecha": "2024-10-25T14:20:00.000Z",
+      "concepto": "Compra Supermercado",
+      "monto": -125.3,
+      "tipo": "EGRESO",
+      "saldoResultante": 12920.5,
+      "referencia": "TRX-1025-001"
+    },
+    {
+      "id": "3",
+      "productoId": "1",
+      "fecha": "2024-10-24T09:15:00.000Z",
+      "concepto": "Transferencia recibida",
+      "monto": 500,
+      "tipo": "INGRESO",
+      "saldoResultante": 13045.8,
+      "referencia": "TRANS-IN-2024"
+    },
+    {
+      "id": "4",
+      "productoId": "5",
+      "fecha": "2024-10-27T18:45:00.000Z",
+      "concepto": "Compra online Amazon",
+      "monto": -89.99,
+      "tipo": "EGRESO",
+      "saldoResultante": -1850.75,
+      "referencia": "AMZ-2024-10-27"
+    },
+    {
+      "id": "5",
+      "productoId": "5",
+      "fecha": "2024-10-26T12:00:00.000Z",
+      "concepto": "Restaurante",
+      "monto": -45.5,
+      "tipo": "EGRESO",
+      "saldoResultante": -1760.76,
+      "referencia": "REST-2024"
+    },
+    {
+      "id": "6",
+      "productoId": "2",
+      "fecha": "2024-10-01T00:00:00.000Z",
+      "concepto": "Transferencia desde cuenta corriente",
+      "monto": 1000,
+      "tipo": "INGRESO",
+      "saldoResultante": 25000,
+      "referencia": "TRANS-AHORRO"
+    },
+    {
+      "id": "7",
+      "productoId": "4",
+      "fecha": "2024-10-15T00:00:00.000Z",
+      "concepto": "Cuota mensual préstamo",
+      "monto": -245.8,
+      "tipo": "EGRESO",
+      "saldoResultante": -12500,
+      "referencia": "CUOTA-OCT-2024"
+    },
+    {
+      "id": "8",
+      "productoId": "8",
+      "fecha": "2024-10-15T00:00:00.000Z",
+      "concepto": "Cuota mensual hipoteca",
+      "monto": -850,
+      "tipo": "EGRESO",
+      "saldoResultante": -185000,
+      "referencia": "HIPOTECA-OCT-2024"
+    }
+  ]
+}

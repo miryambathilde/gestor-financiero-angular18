@@ -1,0 +1,205 @@
+<div class="detalle-container">
+  @if (cargando) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando información del producto...</p>
+    </div>
+  } @else if (producto) {
+    <!-- Encabezado -->
+    <div class="header">
+      <button mat-icon-button routerLink="/productos">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Detalle del Producto</h1>
+    </div>
+
+    <!-- Información principal del producto -->
+    <mat-card class="producto-info-card">
+      <mat-card-header>
+        <div class="header-icon">
+          <mat-icon [class]="'tipo-icon ' + producto.tipo.toLowerCase()">
+            {{ obtenerIconoTipo(producto.tipo) }}
+          </mat-icon>
+        </div>
+        <mat-card-title>{{ producto.nombre }}</mat-card-title>
+        <mat-card-subtitle>{{ traducirTipo(producto.tipo) }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Número de Producto</span>
+            <span class="value">{{ producto.numeroProducto }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Estado</span>
+            <mat-chip [color]="obtenerColorEstado(producto.estado)">
+              {{ producto.estado }}
+            </mat-chip>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Saldo Actual</span>
+            <span
+              class="value saldo"
+              [class.negative]="producto.saldo < 0"
+              [class.positive]="producto.saldo > 0"
+            >
+              {{ formatearMoneda(producto.saldo) }}
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Moneda</span>
+            <span class="value">{{ producto.moneda }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Fecha de Contratación</span>
+            <span class="value">{{ producto.fechaContratacion | date: 'dd/MM/yyyy' }}</span>
+          </div>
+
+          @if (producto.fechaVencimiento) {
+            <div class="info-item">
+              <span class="label">Fecha de Vencimiento</span>
+              <span class="value">
+                {{ producto.fechaVencimiento | date: 'dd/MM/yyyy' }}
+                @if (
+                  calcularDiasVencimiento(producto.fechaVencimiento) <= 30 &&
+                  calcularDiasVencimiento(producto.fechaVencimiento) > 0
+                ) {
+                  <mat-chip color="warn" class="dias-vencimiento">
+                    Vence en {{ calcularDiasVencimiento(producto.fechaVencimiento) }} días
+                  </mat-chip>
+                }
+              </span>
+            </div>
+          }
+
+          @if (producto.tasaInteres) {
+            <div class="info-item">
+              <span class="label">Tasa de Interés</span>
+              <span class="value">{{ producto.tasaInteres }}%</span>
+            </div>
+          }
+
+          @if (producto.limiteCredito) {
+            <div class="info-item">
+              <span class="label">Límite de Crédito</span>
+              <span class="value">{{ formatearMoneda(producto.limiteCredito) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Crédito Disponible</span>
+              <span class="value positive">
+                {{ formatearMoneda(producto.limiteCredito + producto.saldo) }}
+              </span>
+            </div>
+          }
+
+          @if (producto.descripcion) {
+            <div class="info-item full-width">
+              <span class="label">Descripción</span>
+              <span class="value">{{ producto.descripcion }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Movimientos y transacciones -->
+    <mat-card class="movimientos-card">
+      <mat-card-header>
+        <mat-icon>receipt_long</mat-icon>
+        <mat-card-title>Movimientos y Transacciones</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (movimientos.length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="movimientos" class="movimientos-table">
+              <!-- Columna Fecha -->
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                <td mat-cell *matCellDef="let movimiento">
+                  {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
+                </td>
+              </ng-container>
+
+              <!-- Columna Concepto -->
+              <ng-container matColumnDef="concepto">
+                <th mat-header-cell *matHeaderCellDef>Concepto</th>
+                <td mat-cell *matCellDef="let movimiento">
+                  <div class="concepto-cell">
+                    <strong>{{ movimiento.concepto }}</strong>
+                    @if (movimiento.referencia) {
+                      <small class="referencia">Ref: {{ movimiento.referencia }}</small>
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Tipo -->
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let movimiento">
+                  <mat-chip [color]="movimiento.tipo === 'INGRESO' ? 'primary' : 'accent'">
+                    {{ movimiento.tipo }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Columna Monto -->
+              <ng-container matColumnDef="monto">
+                <th mat-header-cell *matHeaderCellDef>Monto</th>
+                <td
+                  mat-cell
+                  *matCellDef="let movimiento"
+                  [class.negative]="movimiento.monto < 0"
+                  [class.positive]="movimiento.monto > 0"
+                >
+                  <strong>{{ formatearMoneda(movimiento.monto) }}</strong>
+                </td>
+              </ng-container>
+
+              <!-- Columna Saldo Resultante -->
+              <ng-container matColumnDef="saldoResultante">
+                <th mat-header-cell *matHeaderCellDef>Saldo Resultante</th>
+                <td mat-cell *matCellDef="let movimiento">
+                  {{ formatearMoneda(movimiento.saldoResultante) }}
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        } @else {
+          <div class="no-movimientos">
+            <mat-icon>inbox</mat-icon>
+            <p>No hay movimientos registrados para este producto</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Acciones -->
+    <div class="actions">
+      <button mat-raised-button routerLink="/productos">
+        <mat-icon>arrow_back</mat-icon>
+        Volver al Listado
+      </button>
+      <button mat-raised-button color="primary" routerLink="/dashboard">
+        <mat-icon>dashboard</mat-icon>
+        Ir al Dashboard
+      </button>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-content>
+        <p>No se encontró el producto solicitado</p>
+        <button mat-raised-button color="primary" routerLink="/productos">Volver al Listado</button>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

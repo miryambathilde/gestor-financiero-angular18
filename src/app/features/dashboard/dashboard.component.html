@@ -1,0 +1,154 @@
+<div class="dashboard-container">
+  <h1>Dashboard Financiero</h1>
+
+  @if (resumen) {
+    <!-- Tarjetas de resumen -->
+    <div class="summary-cards">
+      <mat-card class="summary-card balance">
+        <mat-card-header>
+          <mat-icon>account_balance_wallet</mat-icon>
+          <mat-card-title>Saldo Total</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2 [class.negative]="resumen.saldoTotal < 0">
+            {{ formatearMoneda(resumen.saldoTotal) }}
+          </h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card products">
+        <mat-card-header>
+          <mat-icon>credit_card</mat-icon>
+          <mat-card-title>Productos Activos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ resumen.productosActivos }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card expiring">
+        <mat-card-header>
+          <mat-icon>schedule</mat-icon>
+          <mat-card-title>Próximos Vencimientos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>{{ resumen.proximosVencimientos.length }}</h2>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-container">
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Distribución de Productos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #distributionChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Saldo por Tipo</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #balanceChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Próximos vencimientos -->
+    @if (resumen.proximosVencimientos.length > 0) {
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon>event</mat-icon>
+          <mat-card-title>Productos con Vencimiento Próximo (30 días)</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="expiring-products">
+            @for (producto of resumen.proximosVencimientos; track producto.id) {
+              <div class="expiring-item">
+                <div class="product-info">
+                  <strong>{{ producto.nombre }}</strong>
+                  <span class="product-number">{{ producto.numeroProducto }}</span>
+                </div>
+                <div class="vencimiento-info">
+                  <mat-chip>{{ producto.fechaVencimiento | date: 'dd/MM/yyyy' }}</mat-chip>
+                  <span class="saldo">{{ formatearMoneda(producto.saldo) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Últimos movimientos -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-icon>history</mat-icon>
+        <mat-card-title>Últimos Movimientos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="resumen.ultimosMovimientos" class="movements-table">
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+            <td mat-cell *matCellDef="let movimiento">
+              {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="concepto">
+            <th mat-header-cell *matHeaderCellDef>Concepto</th>
+            <td mat-cell *matCellDef="let movimiento">{{ movimiento.concepto }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="monto">
+            <th mat-header-cell *matHeaderCellDef>Monto</th>
+            <td
+              mat-cell
+              *matCellDef="let movimiento"
+              [class.positive]="movimiento.monto > 0"
+              [class.negative]="movimiento.monto < 0"
+            >
+              {{ formatearMoneda(movimiento.monto) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let movimiento">
+              <mat-chip [color]="movimiento.tipo === 'INGRESO' ? 'primary' : 'accent'">
+                {{ movimiento.tipo }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Acciones rápidas -->
+    <div class="quick-actions">
+      <button mat-raised-button color="primary" routerLink="/productos">
+        Ver Todos los Productos
+      </button>
+      <button mat-raised-button color="accent" routerLink="/contratacion">
+        Contratar Nuevo Producto
+      </button>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-content>
+        <p>Cargando información financiera...</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

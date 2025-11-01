@@ -1,0 +1,284 @@
+<div class="contratacion-container">
+  <h1>Contratar Nuevo Producto Financiero</h1>
+
+  <mat-card>
+    <mat-card-content>
+      <mat-stepper linear #stepper>
+        <!-- Paso 1: Datos Básicos -->
+        <mat-step [stepControl]="datosBasicosForm" label="Datos Básicos">
+          <form [formGroup]="datosBasicosForm">
+            <h2>Selecciona el tipo de producto</h2>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tipo de Producto</mat-label>
+              <mat-select formControlName="tipo" required>
+                @for (tipo of tiposProducto; track tipo) {
+                  <mat-option [value]="tipo">
+                    {{ traducirTipo(tipo) }}
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-error>Este campo es requerido</mat-error>
+            </mat-form-field>
+
+            @if (tipoSeleccionado) {
+              <div class="tipo-descripcion">
+                <mat-icon>info</mat-icon>
+                <p>{{ obtenerDescripcionTipo(tipoSeleccionado) }}</p>
+              </div>
+            }
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre del Producto</mat-label>
+              <input
+                matInput
+                formControlName="nombre"
+                placeholder="Ej: Mi Cuenta Ahorro"
+                required
+              />
+              <mat-error>
+                @if (datosBasicosForm.get('nombre')?.hasError('required')) {
+                  Este campo es requerido
+                }
+                @if (datosBasicosForm.get('nombre')?.hasError('minlength')) {
+                  Mínimo 3 caracteres
+                }
+                @if (datosBasicosForm.get('nombre')?.hasError('maxlength')) {
+                  Máximo 100 caracteres
+                }
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Moneda</mat-label>
+              <mat-select formControlName="moneda" required>
+                <mat-option value="EUR">EUR - Euro</mat-option>
+                <mat-option value="USD">USD - Dólar</mat-option>
+                <mat-option value="GBP">GBP - Libra</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button
+                mat-raised-button
+                matStepperNext
+                color="primary"
+                [disabled]="datosBasicosForm.invalid"
+              >
+                Siguiente
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 2: Datos Financieros -->
+        <mat-step [stepControl]="datosFinancierosForm" label="Datos Financieros">
+          <form [formGroup]="datosFinancierosForm">
+            <h2>Configura los detalles financieros</h2>
+
+            @if (mostrarSaldoInicial) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>
+                  @if (tipoSeleccionado === 'PRESTAMO') {
+                    Monto del Préstamo
+                  } @else if (tipoSeleccionado === 'DEPOSITO') {
+                    Monto a Depositar
+                  } @else {
+                    Saldo Inicial
+                  }
+                </mat-label>
+                <input matInput type="number" formControlName="saldoInicial" placeholder="0.00" />
+                <span matPrefix>€&nbsp;</span>
+                <mat-error>
+                  @if (datosFinancierosForm.get('saldoInicial')?.hasError('required')) {
+                    Este campo es requerido
+                  }
+                  @if (datosFinancierosForm.get('saldoInicial')?.hasError('min')) {
+                    El monto mínimo es
+                    {{ datosFinancierosForm.get('saldoInicial')?.errors?.['min']?.min }}€
+                  }
+                </mat-error>
+              </mat-form-field>
+            }
+
+            @if (mostrarLimiteCredito) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Límite de Crédito</mat-label>
+                <input matInput type="number" formControlName="limiteCredito" placeholder="0.00" />
+                <span matPrefix>€&nbsp;</span>
+                <mat-error>
+                  @if (datosFinancierosForm.get('limiteCredito')?.hasError('required')) {
+                    Este campo es requerido
+                  }
+                  @if (datosFinancierosForm.get('limiteCredito')?.hasError('min')) {
+                    El límite mínimo es 500€
+                  }
+                  @if (datosFinancierosForm.get('limiteCredito')?.hasError('max')) {
+                    El límite máximo es 50,000€
+                  }
+                </mat-error>
+              </mat-form-field>
+            }
+
+            @if (mostrarTasaInteres) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tasa de Interés</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  step="0.1"
+                  formControlName="tasaInteres"
+                  placeholder="0.0"
+                />
+                <span matSuffix>%</span>
+                <mat-error>
+                  @if (datosFinancierosForm.get('tasaInteres')?.hasError('required')) {
+                    Este campo es requerido
+                  }
+                  @if (
+                    datosFinancierosForm.get('tasaInteres')?.hasError('min') ||
+                    datosFinancierosForm.get('tasaInteres')?.hasError('max')
+                  ) {
+                    Ingrese un valor válido
+                  }
+                </mat-error>
+              </mat-form-field>
+            }
+
+            @if (mostrarPlazoMeses) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Plazo (meses)</mat-label>
+                <input matInput type="number" formControlName="plazoMeses" placeholder="12" />
+                <mat-error>
+                  @if (datosFinancierosForm.get('plazoMeses')?.hasError('required')) {
+                    Este campo es requerido
+                  }
+                  @if (datosFinancierosForm.get('plazoMeses')?.hasError('min')) {
+                    El plazo mínimo es
+                    {{ datosFinancierosForm.get('plazoMeses')?.errors?.['min']?.min }} meses
+                  }
+                  @if (datosFinancierosForm.get('plazoMeses')?.hasError('max')) {
+                    El plazo máximo es
+                    {{ datosFinancierosForm.get('plazoMeses')?.errors?.['max']?.max }} meses
+                  }
+                </mat-error>
+              </mat-form-field>
+            }
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Anterior
+              </button>
+              <button
+                mat-raised-button
+                matStepperNext
+                color="primary"
+                [disabled]="datosFinancierosForm.invalid"
+              >
+                Siguiente
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Paso 3: Confirmación -->
+        <mat-step [stepControl]="confirmacionForm" label="Confirmación">
+          <form [formGroup]="confirmacionForm">
+            <h2>Revisa y confirma tu solicitud</h2>
+
+            <div class="resumen-contratacion">
+              <h3>Resumen del Producto</h3>
+              <div class="resumen-item">
+                <span class="label">Tipo:</span>
+                <span class="value">{{ traducirTipo(datosBasicosForm.get('tipo')?.value) }}</span>
+              </div>
+              <div class="resumen-item">
+                <span class="label">Nombre:</span>
+                <span class="value">{{ datosBasicosForm.get('nombre')?.value }}</span>
+              </div>
+              <div class="resumen-item">
+                <span class="label">Moneda:</span>
+                <span class="value">{{ datosBasicosForm.get('moneda')?.value }}</span>
+              </div>
+
+              @if (mostrarSaldoInicial && datosFinancierosForm.get('saldoInicial')?.value > 0) {
+                <div class="resumen-item">
+                  <span class="label">Monto:</span>
+                  <span class="value">{{ datosFinancierosForm.get('saldoInicial')?.value }}€</span>
+                </div>
+              }
+
+              @if (mostrarLimiteCredito && datosFinancierosForm.get('limiteCredito')?.value > 0) {
+                <div class="resumen-item">
+                  <span class="label">Límite de Crédito:</span>
+                  <span class="value">{{ datosFinancierosForm.get('limiteCredito')?.value }}€</span>
+                </div>
+              }
+
+              @if (mostrarTasaInteres && datosFinancierosForm.get('tasaInteres')?.value > 0) {
+                <div class="resumen-item">
+                  <span class="label">Tasa de Interés:</span>
+                  <span class="value">{{ datosFinancierosForm.get('tasaInteres')?.value }}%</span>
+                </div>
+              }
+
+              @if (mostrarPlazoMeses && datosFinancierosForm.get('plazoMeses')?.value) {
+                <div class="resumen-item">
+                  <span class="label">Plazo:</span>
+                  <span class="value"
+                    >{{ datosFinancierosForm.get('plazoMeses')?.value }} meses</span
+                  >
+                </div>
+              }
+            </div>
+
+            <div class="terminos">
+              <mat-checkbox formControlName="aceptaTerminos">
+                Acepto los términos y condiciones del producto
+              </mat-checkbox>
+              <mat-error
+                *ngIf="
+                  confirmacionForm.get('aceptaTerminos')?.invalid &&
+                  confirmacionForm.get('aceptaTerminos')?.touched
+                "
+              >
+                Debe aceptar los términos y condiciones
+              </mat-error>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Anterior
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onSubmit()"
+                [disabled]="confirmacionForm.invalid || enviando"
+              >
+                @if (enviando) {
+                  <mat-icon>hourglass_empty</mat-icon>
+                  Procesando...
+                } @else {
+                  <mat-icon>check_circle</mat-icon>
+                  Contratar Producto
+                }
+              </button>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="cancel-action">
+    <button mat-button routerLink="/productos">
+      <mat-icon>cancel</mat-icon>
+      Cancelar y Volver
+    </button>
+  </div>
+</div>

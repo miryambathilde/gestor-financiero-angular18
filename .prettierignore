@@ -1,0 +1,25 @@
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/dist
+/dist-server
+/.angular
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+
+# IDE
+/.vscode
+/.idea
+*.swp
+*.swo
+
+# package manager
+package-lock.json
+yarn.lock
