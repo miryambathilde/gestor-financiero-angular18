@@ -1,4 +1,4 @@
-guar# Gestor de Productos Financieros
+# Gestor de Productos Financieros
 
 Aplicación web desarrollada en **Angular 18** que simula un gestor de productos financieros para clientes bancarios. Este proyecto es una prueba técnica que demuestra el uso de las mejores prácticas de desarrollo en Angular.
 
