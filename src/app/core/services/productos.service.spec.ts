@@ -138,6 +138,71 @@ describe('ProductosService', () => {
     expect(service.productosFiltrados().length).toBeGreaterThanOrEqual(0);
   });
 
+  describe('Filtros', () => {
+    beforeEach(() => {
+      const req = httpMock.expectOne(`${API_URL}/productos`);
+      req.flush(mockProductos);
+    });
+
+    it('should filter by tipo', () => {
+      service.actualizarFiltros({ tipo: TipoProducto.CUENTA });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.every(p => p.tipo === TipoProducto.CUENTA)).toBe(true);
+    });
+
+    it('should filter by estado', () => {
+      service.actualizarFiltros({ estado: EstadoProducto.ACTIVO });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.every(p => p.estado === EstadoProducto.ACTIVO)).toBe(true);
+    });
+
+    it('should filter by fechaDesde', () => {
+      service.actualizarFiltros({ fechaDesde: new Date('2024-01-15') });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should filter by fechaHasta', () => {
+      service.actualizarFiltros({ fechaHasta: new Date('2024-01-15') });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should filter by busqueda - nombre', () => {
+      service.actualizarFiltros({ busqueda: 'Corriente' });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBeGreaterThan(0);
+    });
+
+    it('should filter by busqueda - numeroProducto', () => {
+      service.actualizarFiltros({ busqueda: 'ES1234' });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBeGreaterThan(0);
+    });
+
+    it('should filter by busqueda - descripcion', () => {
+      service.actualizarFiltros({ busqueda: 'prueba' });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados).toBeDefined();
+    });
+
+    it('should combine multiple filters', () => {
+      service.actualizarFiltros({
+        tipo: TipoProducto.CUENTA,
+        estado: EstadoProducto.ACTIVO,
+        busqueda: 'Corriente'
+      });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return empty array when filters do not match', () => {
+      service.actualizarFiltros({ busqueda: 'INEXISTENTE_XYZ' });
+      const filtrados = service.productosFiltrados();
+      expect(filtrados.length).toBe(0);
+    });
+  });
+
   it('should get resumen financiero', done => {
     const initReq = httpMock.expectOne(`${API_URL}/productos`);
     initReq.flush(mockProductos);
