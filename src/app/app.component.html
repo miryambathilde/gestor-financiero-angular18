@@ -1,19 +1,41 @@
-<mat-toolbar color="primary" class="app-toolbar">
-  <mat-icon class="toolbar-icon">account_balance</mat-icon>
-  <span class="app-title">{{ title }}</span>
-  <span class="spacer"></span>
-  @for (item of menuItems; track item.path) {
-    <a mat-button [routerLink]="item.path" routerLinkActive="active-link">
-      <mat-icon>{{ item.icon }}</mat-icon>
-      <span>{{ item.label }}</span>
-    </a>
-  }
-</mat-toolbar>
+@if (isAuthenticated()) {
+  <mat-toolbar color="primary" class="app-toolbar">
+    <mat-icon class="toolbar-icon">account_balance</mat-icon>
+    <span class="app-title">{{ title }}</span>
+    <span class="spacer"></span>
+    @for (item of menuItems; track item.path) {
+      <a mat-button [routerLink]="item.path" routerLinkActive="active-link">
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+    
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+      <div class="user-avatar">{{ getUserInitials() }}</div>
+      <span class="user-name">{{ getUserDisplayName() }}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item disabled>
+        <mat-icon>email</mat-icon>
+        <span>{{ currentUser()?.email }}</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
 
-<main class="app-content">
+  <main class="app-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="app-footer">
+    <p>&copy; 2025 Gestor Financiero - Prueba Técnica Angular 18</p>
+  </footer>
+} @else {
   <router-outlet></router-outlet>
-</main>
-
-<footer class="app-footer">
-  <p>&copy; 2025 Gestor Financiero - Prueba Técnica Angular 18</p>
-</footer>
+}

@@ -1,0 +1,92 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Iniciar Sesión</h1>
+      </mat-card-title>
+      <mat-card-subtitle>
+        Accede a tu cuenta del Gestor Financiero
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="tu@email.com"
+            autocomplete="email"
+          />
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="email?.invalid && email?.touched">
+            {{ emailErrorMessage }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hidePassword()"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.invalid && password?.touched">
+            {{ passwordErrorMessage }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Remember Me Checkbox -->
+        <div class="form-options">
+          <mat-checkbox formControlName="rememberMe">
+            Recuérdame
+          </mat-checkbox>
+          <a routerLink="/auth/forgot-password" class="forgot-password-link">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="submit-button full-width"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Iniciando sesión...</span>
+          } @else {
+            <span>Iniciar Sesión</span>
+          }
+        </button>
+
+        <!-- Register Link -->
+        <div class="register-link">
+          <p>
+            ¿No tienes una cuenta?
+            <a routerLink="/auth/register">Regístrate aquí</a>
+          </p>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
