@@ -204,4 +204,95 @@ describe('RegisterComponent', () => {
 
     expect(component.registerForm.get('aceptaTerminos')?.valid).toBe(true);
   });
+
+  describe('Error Messages', () => {
+    it('should return email error messages', () => {
+      const emailControl = component.registerForm.get('email');
+
+      emailControl?.setValue('');
+      emailControl?.markAsTouched();
+      expect(component.emailErrorMessage).toBe('El email es requerido');
+
+      emailControl?.setValue('invalid');
+      expect(component.emailErrorMessage).toBe('Ingresa un email válido');
+
+      emailControl?.setValue('valid@email.com');
+      expect(component.emailErrorMessage).toBe('');
+    });
+
+    it('should return nombre error messages', () => {
+      const nombreControl = component.registerForm.get('nombre');
+
+      nombreControl?.setValue('');
+      nombreControl?.markAsTouched();
+      expect(component.nombreErrorMessage).toBe('El nombre es requerido');
+
+      nombreControl?.setValue('a');
+      nombreControl?.markAsTouched();
+      expect(component.nombreErrorMessage).toBe('El nombre debe tener al menos 2 caracteres');
+
+      nombreControl?.setValue('John');
+      expect(component.nombreErrorMessage).toBe('');
+    });
+
+    it('should return apellido error messages', () => {
+      const apellidoControl = component.registerForm.get('apellido');
+
+      apellidoControl?.setValue('');
+      apellidoControl?.markAsTouched();
+      expect(component.apellidoErrorMessage).toBe('El apellido es requerido');
+
+      apellidoControl?.setValue('a');
+      apellidoControl?.markAsTouched();
+      expect(component.apellidoErrorMessage).toBe('El apellido debe tener al menos 2 caracteres');
+
+      apellidoControl?.setValue('Doe');
+      expect(component.apellidoErrorMessage).toBe('');
+    });
+
+    it('should return telefono error message', () => {
+      const telefonoControl = component.registerForm.get('telefono');
+
+      telefonoControl?.setValue('123');
+      telefonoControl?.markAsTouched();
+      expect(component.telefonoErrorMessage).toBe('Ingresa un teléfono válido (9-15 dígitos)');
+
+      telefonoControl?.setValue('123456789');
+      expect(component.telefonoErrorMessage).toBe('');
+    });
+
+    it('should return password error messages', () => {
+      const passwordControl = component.registerForm.get('password');
+
+      passwordControl?.setValue('');
+      passwordControl?.markAsTouched();
+      expect(component.passwordErrorMessage).toBe('La contraseña es requerida');
+
+      passwordControl?.setValue('12345');
+      expect(component.passwordErrorMessage).toBe('La contraseña debe tener al menos 8 caracteres');
+
+      passwordControl?.setValue('weakpass');
+      expect(component.passwordErrorMessage).toContain('debe contener');
+
+      passwordControl?.setValue('StrongPass123');
+      expect(component.passwordErrorMessage).toBe('');
+    });
+
+    it('should return confirmPassword error messages', () => {
+      const passwordControl = component.registerForm.get('password');
+      const confirmPasswordControl = component.registerForm.get('confirmPassword');
+
+      confirmPasswordControl?.setValue('');
+      confirmPasswordControl?.markAsTouched();
+      expect(component.confirmPasswordErrorMessage).toBe('Confirma tu contraseña');
+
+      passwordControl?.setValue('Password123');
+      confirmPasswordControl?.setValue('DifferentPass');
+      confirmPasswordControl?.markAsTouched();
+      expect(component.confirmPasswordErrorMessage).toBe('Las contraseñas no coinciden');
+
+      confirmPasswordControl?.setValue('Password123');
+      expect(component.confirmPasswordErrorMessage).toBe('');
+    });
+  });
 });
