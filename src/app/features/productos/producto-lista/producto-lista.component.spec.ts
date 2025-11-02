@@ -1,15 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ProductoListaComponent } from './producto-lista.component';
 import { ProductosService } from '../../../core/services/productos.service';
 import { BehaviorSubject } from 'rxjs';
 import { ProductoFinanciero, TipoProducto, EstadoProducto } from '../../../core/models';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 
 describe('ProductoListaComponent', () => {
   let component: ProductoListaComponent;
   let fixture: ComponentFixture<ProductoListaComponent>;
   let productosFiltradosSubject: BehaviorSubject<ProductoFinanciero[]>;
+  let productosService: jasmine.SpyObj<ProductosService>;
 
   const mockProductos: ProductoFinanciero[] = [
     {
@@ -52,6 +55,7 @@ describe('ProductoListaComponent', () => {
 
     fixture = TestBed.createComponent(ProductoListaComponent);
     component = fixture.componentInstance;
+    productosService = TestBed.inject(ProductosService) as jasmine.SpyObj<ProductosService>;
   });
 
   it('should create', () => {
@@ -104,10 +108,165 @@ describe('ProductoListaComponent', () => {
     expect(component.filtrosForm.value.tipo).toBe('');
   });
 
-  it('should handle page change', () => {
-    const event = { pageIndex: 1, pageSize: 5, length: 10 };
+  it('debe cambiar de página', () => {
+    const event: PageEvent = {
+      pageIndex: 1,
+      pageSize: 5,
+      length: 10
+    };
+
     component.onPageChange(event);
+
     expect(component.pageIndex).toBe(1);
     expect(component.pageSize).toBe(5);
+  });
+
+  describe('Ordenamiento', () => {
+    beforeEach(() => {
+      component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it('debe ordenar por nombre ascendente', () => {
+      const sort: Sort = { active: 'nombre', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData[0].nombre).toBe('Cuenta Corriente');
+      expect(component.sortedData[1].nombre).toBe('Depósito Plazo Fijo');
+    });
+
+    it('debe ordenar por nombre descendente', () => {
+      const sort: Sort = { active: 'nombre', direction: 'desc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData[0].nombre).toBe('Depósito Plazo Fijo');
+      expect(component.sortedData[1].nombre).toBe('Cuenta Corriente');
+    });
+
+    it('debe ordenar por tipo', () => {
+      const sort: Sort = { active: 'tipo', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData[0].tipo).toBe(TipoProducto.CUENTA);
+    });
+
+    it('debe ordenar por estado', () => {
+      const sort: Sort = { active: 'estado', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData.length).toBe(2);
+    });
+
+    it('debe ordenar por saldo', () => {
+      const sort: Sort = { active: 'saldo', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData[0].saldo).toBe(1000);
+    });
+
+    it('debe ordenar por fechaContratacion', () => {
+      const sort: Sort = { active: 'fechaContratacion', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData.length).toBe(2);
+    });
+
+    it('debe restaurar orden original cuando no hay dirección', () => {
+      const sort: Sort = { active: 'nombre', direction: '' };
+      component.dataSource = mockProductos;
+      component.sortedData = [...mockProductos].reverse();
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData).toEqual(mockProductos);
+    });
+
+    it('debe restaurar orden original cuando no hay columna activa', () => {
+      const sort: Sort = { active: '', direction: 'asc' };
+      component.dataSource = mockProductos;
+      component.sortedData = [...mockProductos].reverse();
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData).toEqual(mockProductos);
+    });
+
+    it('debe devolver 0 para columna no reconocida', () => {
+      const sort: Sort = { active: 'columnaInexistente', direction: 'asc' };
+      component.dataSource = mockProductos;
+
+      component.onSortChange(sort);
+
+      expect(component.sortedData.length).toBe(2);
+    });
+  });
+
+  describe('obtenerColorEstado casos adicionales', () => {
+    it('debe devolver "warn" para PENDIENTE', () => {
+      const color = component.obtenerColorEstado(EstadoProducto.PENDIENTE);
+      expect(color).toBe('warn');
+    });
+
+    it('debe devolver cadena vacía para estado desconocido', () => {
+      const color = component.obtenerColorEstado('DESCONOCIDO' as EstadoProducto);
+      expect(color).toBe('');
+    });
+  });
+
+  describe('obtenerIconoTipo casos adicionales', () => {
+    it('debe devolver "help" para tipo desconocido', () => {
+      const icono = component.obtenerIconoTipo('DESCONOCIDO' as TipoProducto);
+      expect(icono).toBe('help');
+    });
+  });
+
+  describe('Integración con ProductosService', () => {
+    beforeEach(() => {
+      component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it('debe actualizar filtros con debounce', fakeAsync(() => {
+      component.filtrosForm.patchValue({ tipo: TipoProducto.CUENTA });
+
+      tick(299);
+      expect(productosService.actualizarFiltros).not.toHaveBeenCalled();
+
+      tick(1);
+      expect(productosService.actualizarFiltros).toHaveBeenCalledWith(
+        jasmine.objectContaining({ tipo: TipoProducto.CUENTA })
+      );
+    }));
+
+    it('debe resetear pageIndex al cambiar filtros', fakeAsync(() => {
+      component.pageIndex = 5;
+
+      component.filtrosForm.patchValue({ tipo: TipoProducto.DEPOSITO });
+
+      tick(300);
+      expect(component.pageIndex).toBe(0);
+    }));
+  });
+
+  describe('ngOnDestroy', () => {
+    it('debe desuscribirse de todas las subscripciones', () => {
+      const spy = spyOn(component['subscription'], 'unsubscribe');
+
+      component.ngOnDestroy();
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 });
