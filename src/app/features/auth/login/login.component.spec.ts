@@ -170,4 +170,52 @@ describe('LoginComponent', () => {
     component.onSubmit();
     expect(component.isLoading()).toBe(false); // Will be false after subscription completes
   });
+
+  describe('Error Messages', () => {
+    it('should return required error message for email', () => {
+      const emailControl = component.loginForm.get('email');
+      emailControl?.setValue('');
+      emailControl?.markAsTouched();
+
+      expect(component.emailErrorMessage).toBe('El email es requerido');
+    });
+
+    it('should return email format error message', () => {
+      const emailControl = component.loginForm.get('email');
+      emailControl?.setValue('invalid-email');
+      emailControl?.markAsTouched();
+
+      expect(component.emailErrorMessage).toBe('Ingresa un email válido');
+    });
+
+    it('should return empty string for email when valid', () => {
+      const emailControl = component.loginForm.get('email');
+      emailControl?.setValue('valid@email.com');
+
+      expect(component.emailErrorMessage).toBe('');
+    });
+
+    it('should return required error message for password', () => {
+      const passwordControl = component.loginForm.get('password');
+      passwordControl?.setValue('');
+      passwordControl?.markAsTouched();
+
+      expect(component.passwordErrorMessage).toBe('La contraseña es requerida');
+    });
+
+    it('should return minlength error message for password', () => {
+      const passwordControl = component.loginForm.get('password');
+      passwordControl?.setValue('12345');
+      passwordControl?.markAsTouched();
+
+      expect(component.passwordErrorMessage).toBe('La contraseña debe tener al menos 6 caracteres');
+    });
+
+    it('should return empty string for password when valid', () => {
+      const passwordControl = component.loginForm.get('password');
+      passwordControl?.setValue('123456');
+
+      expect(component.passwordErrorMessage).toBe('');
+    });
+  });
 });
