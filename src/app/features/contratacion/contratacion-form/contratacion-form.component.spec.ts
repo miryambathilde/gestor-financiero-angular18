@@ -127,4 +127,81 @@ describe('ContratacionFormComponent', () => {
     component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.TARJETA);
     expect(component.mostrarLimiteCredito).toBe(true);
   });
+
+  it('should not show limiteCredito for non-TARJETA types', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.CUENTA);
+    expect(component.mostrarLimiteCredito).toBe(false);
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.DEPOSITO);
+    expect(component.mostrarLimiteCredito).toBe(false);
+  });
+
+  it('should show tasaInteres for DEPOSITO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.DEPOSITO);
+    expect(component.mostrarTasaInteres).toBe(true);
+  });
+
+  it('should show tasaInteres for PRESTAMO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.PRESTAMO);
+    expect(component.mostrarTasaInteres).toBe(true);
+  });
+
+  it('should show tasaInteres for TARJETA', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.TARJETA);
+    expect(component.mostrarTasaInteres).toBe(true);
+  });
+
+  it('should not show tasaInteres for CUENTA', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.CUENTA);
+    expect(component.mostrarTasaInteres).toBe(false);
+  });
+
+  it('should show plazoMeses for DEPOSITO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.DEPOSITO);
+    expect(component.mostrarPlazoMeses).toBe(true);
+  });
+
+  it('should show plazoMeses for PRESTAMO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.PRESTAMO);
+    expect(component.mostrarPlazoMeses).toBe(true);
+  });
+
+  it('should not show plazoMeses for CUENTA', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.CUENTA);
+    expect(component.mostrarPlazoMeses).toBe(false);
+  });
+
+  it('should show saldoInicial for DEPOSITO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.DEPOSITO);
+    expect(component.mostrarSaldoInicial).toBe(true);
+  });
+
+  it('should show saldoInicial for PRESTAMO', () => {
+    component.datosBasicosForm.get('tipo')?.setValue(TipoProducto.PRESTAMO);
+    expect(component.mostrarSaldoInicial).toBe(true);
+  });
+
+  it('should translate all tipos correctly', () => {
+    expect(component.traducirTipo(TipoProducto.CUENTA)).toBe('Cuenta Bancaria');
+    expect(component.traducirTipo(TipoProducto.DEPOSITO)).toBe('Depósito a Plazo Fijo');
+    expect(component.traducirTipo(TipoProducto.PRESTAMO)).toBe('Préstamo');
+    expect(component.traducirTipo(TipoProducto.TARJETA)).toBe('Tarjeta de Crédito');
+  });
+
+  it('should return description for all tipos', () => {
+    expect(component.obtenerDescripcionTipo(TipoProducto.CUENTA)).toContain('Cuenta corriente');
+    expect(component.obtenerDescripcionTipo(TipoProducto.DEPOSITO)).toContain('Invierte tu dinero');
+    expect(component.obtenerDescripcionTipo(TipoProducto.PRESTAMO)).toContain('Financia');
+    expect(component.obtenerDescripcionTipo(TipoProducto.TARJETA)).toContain('Paga cómodamente');
+  });
+
+  it('should not submit if forms are invalid', () => {
+    component.datosBasicosForm.patchValue({
+      tipo: TipoProducto.CUENTA
+      // falta nombre
+    });
+
+    component.onSubmit();
+
+    expect(mockProductosService.crearProducto).not.toHaveBeenCalled();
+  });
 });

@@ -9,6 +9,7 @@ import {
   EstadoProducto
 } from '../../core/models';
 import { provideRouter } from '@angular/router';
+import { ElementRef } from '@angular/core';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -102,5 +103,89 @@ describe('DashboardComponent', () => {
 
   it('should have correct display columns', () => {
     expect(component.displayedColumns).toEqual(['fecha', 'concepto', 'monto', 'tipo']);
+  });
+
+  it('should translate all tipos correctly', () => {
+    expect(component.traducirTipo('CUENTA')).toBe('Cuentas');
+    expect(component.traducirTipo('DEPOSITO')).toBe('Depósitos');
+    expect(component.traducirTipo('PRESTAMO')).toBe('Préstamos');
+    expect(component.traducirTipo('TARJETA')).toBe('Tarjetas');
+    expect(component.traducirTipo('DESCONOCIDO')).toBe('DESCONOCIDO');
+  });
+
+  it('should return primary for ACTIVO estado', () => {
+    expect(component.obtenerEstadoChip('ACTIVO')).toBe('primary');
+  });
+
+  it('should return default for non-ACTIVO estados', () => {
+    expect(component.obtenerEstadoChip('INACTIVO')).toBe('default');
+    expect(component.obtenerEstadoChip('SUSPENDIDO')).toBe('default');
+    expect(component.obtenerEstadoChip('CANCELADO')).toBe('default');
+  });
+
+  it('should not create graficos if no resumen', () => {
+    component.resumen = undefined;
+    component.crearGraficos();
+    expect(component.distributionChart).toBeUndefined();
+    expect(component.balanceChart).toBeUndefined();
+  });
+
+  it('should not create graficos if chart refs not available', () => {
+    component.resumen = mockResumen;
+    (
+      component as {
+        distributionChartRef: ElementRef<HTMLCanvasElement> | undefined;
+      }
+    ).distributionChartRef = undefined;
+    (
+      component as {
+        balanceChartRef: ElementRef<HTMLCanvasElement> | undefined;
+      }
+    ).balanceChartRef = undefined;
+    component.crearGraficos();
+    expect(component.distributionChart).toBeUndefined();
+    expect(component.balanceChart).toBeUndefined();
+  });
+
+  it('should unsubscribe and destroy charts on destroy', () => {
+    const distributionChartSpy = jasmine.createSpyObj('Chart', ['destroy']);
+    const balanceChartSpy = jasmine.createSpyObj('Chart', ['destroy']);
+    component.distributionChart = distributionChartSpy;
+    component.balanceChart = balanceChartSpy;
+
+    component.ngOnDestroy();
+
+    expect(distributionChartSpy.destroy).toHaveBeenCalled();
+    expect(balanceChartSpy.destroy).toHaveBeenCalled();
+  });
+
+  it('should create graficos in ngAfterViewInit if resumen exists', () => {
+    component.resumen = mockResumen;
+    spyOn(component, 'crearGraficos');
+
+    component.ngAfterViewInit();
+
+    expect(component.crearGraficos).toHaveBeenCalled();
+  });
+
+  it('should not create graficos in ngAfterViewInit if no resumen', () => {
+    component.resumen = undefined;
+    spyOn(component, 'crearGraficos');
+
+    component.ngAfterViewInit();
+
+    expect(component.crearGraficos).not.toHaveBeenCalled();
+  });
+
+  it('should format negative amounts correctly', () => {
+    const formatted = component.formatearMoneda(-1000);
+    expect(formatted).toContain('-');
+    expect(formatted).toContain('€');
+  });
+
+  it('should format zero correctly', () => {
+    const formatted = component.formatearMoneda(0);
+    expect(formatted).toContain('0');
+    expect(formatted).toContain('€');
   });
 });

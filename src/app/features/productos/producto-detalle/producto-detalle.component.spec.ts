@@ -112,4 +112,66 @@ describe('ProductoDetalleComponent', () => {
     const dias = component.calcularDiasVencimiento(futureDate);
     expect(dias).toBeGreaterThanOrEqual(9);
   });
+
+  describe('obtenerColorEstado casos adicionales', () => {
+    it('debe devolver "warn" para PENDIENTE', () => {
+      const color = component.obtenerColorEstado(EstadoProducto.PENDIENTE);
+      expect(color).toBe('warn');
+    });
+
+    it('debe devolver cadena vacía para estado desconocido', () => {
+      const color = component.obtenerColorEstado('DESCONOCIDO' as EstadoProducto);
+      expect(color).toBe('');
+    });
+  });
+
+  describe('obtenerIconoTipo casos adicionales', () => {
+    it('debe devolver "request_quote" para PRESTAMO', () => {
+      const icono = component.obtenerIconoTipo(TipoProducto.PRESTAMO);
+      expect(icono).toBe('request_quote');
+    });
+
+    it('debe devolver "credit_card" para TARJETA', () => {
+      const icono = component.obtenerIconoTipo(TipoProducto.TARJETA);
+      expect(icono).toBe('credit_card');
+    });
+
+    it('debe devolver "help" para tipo desconocido', () => {
+      const icono = component.obtenerIconoTipo('DESCONOCIDO' as TipoProducto);
+      expect(icono).toBe('help');
+    });
+  });
+
+  describe('traducirTipo casos adicionales', () => {
+    it('debe traducir PRESTAMO correctamente', () => {
+      expect(component.traducirTipo(TipoProducto.PRESTAMO)).toBe('Préstamo');
+    });
+
+    it('debe traducir TARJETA correctamente', () => {
+      expect(component.traducirTipo(TipoProducto.TARJETA)).toBe('Tarjeta');
+    });
+  });
+
+  describe('formatearMoneda casos adicionales', () => {
+    it('debe formatear números negativos', () => {
+      const formatted = component.formatearMoneda(-1000);
+      expect(formatted).toContain('€');
+      expect(formatted).toContain('-');
+    });
+
+    it('debe formatear cero', () => {
+      const formatted = component.formatearMoneda(0);
+      expect(formatted).toContain('€');
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('debe desuscribirse de todas las subscripciones', () => {
+      const spy = spyOn(component['subscription'], 'unsubscribe');
+
+      component.ngOnDestroy();
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
 });

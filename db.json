@@ -255,6 +255,16 @@
       "telefono": null,
       "rol": "USER",
       "createdAt": "2025-11-02T12:49:34.310Z"
+    },
+    {
+      "id": "1762090845512",
+      "email": "test1@test.com",
+      "password": "Test2019!",
+      "nombre": "Maria",
+      "apellido": "Pérez",
+      "telefono": null,
+      "rol": "USER",
+      "createdAt": "2025-11-02T13:40:45.512Z"
     }
   ]
 }
