@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, provideRouter } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
@@ -12,8 +12,7 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let authService: jasmine.SpyObj<AuthService>;
-  let router: jasmine.SpyObj<Router>;
-  let snackBar: jasmine.SpyObj<MatSnackBar>;
+  let router: Router;
 
   const mockAuthResponse: AuthResponse = {
     user: {
@@ -29,14 +28,13 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule, BrowserAnimationsModule],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
         {
           provide: ActivatedRoute,
@@ -50,11 +48,18 @@ describe('LoginComponent', () => {
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    snackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+
+    // Spy on the component's private methods that call snackBar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spyOn<any>(component, 'showSuccess');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spyOn<any>(component, 'showError');
+
     fixture.detectChanges();
   });
 
@@ -112,7 +117,7 @@ describe('LoginComponent', () => {
     expect(component.loginForm.get('password')?.touched).toBe(true);
   });
 
-  it('should submit form and navigate on success', () => {
+  it('should submit form and navigate on success', fakeAsync(() => {
     authService.login.and.returnValue(of(mockAuthResponse));
 
     component.loginForm.patchValue({
@@ -122,6 +127,8 @@ describe('LoginComponent', () => {
     });
 
     component.onSubmit();
+    tick();
+    flush(); // Clear any pending timers (like snackBar duration)
 
     expect(authService.login).toHaveBeenCalledWith({
       email: 'test@example.com',
@@ -130,10 +137,10 @@ describe('LoginComponent', () => {
     });
 
     expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
-    expect(snackBar.open).toHaveBeenCalled();
-  });
+    expect(component['showSuccess']).toHaveBeenCalledWith('Inicio de sesión exitoso');
+  }));
 
-  it('should show error on login failure', () => {
+  it('should show error on login failure', fakeAsync(() => {
     const error = { error: { message: 'Invalid credentials' } };
     authService.login.and.returnValue(throwError(() => error));
 
@@ -143,11 +150,13 @@ describe('LoginComponent', () => {
     });
 
     component.onSubmit();
+    tick();
+    flush(); // Clear any pending timers (like snackBar duration)
 
     expect(authService.login).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
-    expect(snackBar.open).toHaveBeenCalled();
-  });
+    expect(component['showError']).toHaveBeenCalledWith('Invalid credentials');
+  }));
 
   it('should set loading state during login', () => {
     authService.login.and.returnValue(of(mockAuthResponse));

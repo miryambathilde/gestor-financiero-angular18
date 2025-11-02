@@ -171,6 +171,9 @@ describe('AuthService', () => {
     });
 
     it('should navigate to login page when navigateToLogin is true', () => {
+      // Set a token in localStorage so the HTTP request is made
+      localStorage.setItem('auth_token', 'test-token');
+
       service.logout(true);
 
       const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);

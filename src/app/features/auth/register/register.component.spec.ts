@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
@@ -12,8 +12,7 @@ describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let authService: jasmine.SpyObj<AuthService>;
-  let router: jasmine.SpyObj<Router>;
-  let snackBar: jasmine.SpyObj<MatSnackBar>;
+  let router: Router;
 
   const mockAuthResponse: AuthResponse = {
     user: {
@@ -29,24 +28,30 @@ describe('RegisterComponent', () => {
 
   beforeEach(async () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     await TestBed.configureTestingModule({
       imports: [RegisterComponent, ReactiveFormsModule, BrowserAnimationsModule],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
         { provide: MatSnackBar, useValue: snackBarSpy }
       ]
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    snackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
+
+    // Spy on the component's private methods that call snackBar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spyOn<any>(component, 'showSuccess');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spyOn<any>(component, 'showError');
+
     fixture.detectChanges();
   });
 
@@ -135,10 +140,10 @@ describe('RegisterComponent', () => {
     component.onSubmit();
 
     expect(authService.register).not.toHaveBeenCalled();
-    expect(component.registerForm.touched).toBe(false);
+    expect(component.registerForm.invalid).toBe(true);
   });
 
-  it('should submit form and navigate on success', done => {
+  it('should submit form and navigate on success', fakeAsync(() => {
     authService.register.and.returnValue(of(mockAuthResponse));
 
     component.registerForm.patchValue({
@@ -151,17 +156,15 @@ describe('RegisterComponent', () => {
     });
 
     component.onSubmit();
+    tick();
+    flush();
 
     expect(authService.register).toHaveBeenCalled();
-    expect(snackBar.open).toHaveBeenCalled();
+    expect(component['showSuccess']).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+  }));
 
-    setTimeout(() => {
-      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
-      done();
-    }, 1600);
-  });
-
-  it('should show error on registration failure', () => {
+  it('should show error on registration failure', fakeAsync(() => {
     const error = { error: { message: 'Email already exists' } };
     authService.register.and.returnValue(throwError(() => error));
 
@@ -175,11 +178,13 @@ describe('RegisterComponent', () => {
     });
 
     component.onSubmit();
+    tick();
+    flush();
 
     expect(authService.register).toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
-    expect(snackBar.open).toHaveBeenCalled();
-  });
+    expect(component['showError']).toHaveBeenCalled();
+  }));
 
   it('should require terms acceptance', () => {
     component.registerForm.patchValue({

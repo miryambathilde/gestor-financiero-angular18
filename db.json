@@ -148,6 +148,19 @@
       "tasaInteres": 10,
       "limiteCredito": 0,
       "fechaVencimiento": "2026-11-02T13:03:22.820Z"
+    },
+    {
+      "id": "mhhqxoq9mmnrtv9261j",
+      "tipo": "DEPOSITO",
+      "nombre": "Regularización",
+      "numeroProducto": "DP-2025-076508",
+      "estado": "ACTIVO",
+      "saldo": 100000,
+      "fechaContratacion": "2025-11-02T13:27:56.508Z",
+      "moneda": "EUR",
+      "tasaInteres": 2,
+      "limiteCredito": 0,
+      "fechaVencimiento": "2026-02-02T13:27:56.508Z"
     }
   ],
   "movimientos": [
