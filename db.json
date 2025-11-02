@@ -135,6 +135,32 @@
       "tasaInteres": 5,
       "limiteCredito": 0,
       "fechaVencimiento": "2028-05-01T21:26:53.934Z"
+    },
+    {
+      "id": "mhhq23mh67902jpwqo",
+      "tipo": "DEPOSITO",
+      "nombre": "Deposito de prueba",
+      "numeroProducto": "DP-2025-602820",
+      "estado": "ACTIVO",
+      "saldo": 20000,
+      "fechaContratacion": "2025-11-02T13:03:22.820Z",
+      "moneda": "EUR",
+      "tasaInteres": 10,
+      "limiteCredito": 0,
+      "fechaVencimiento": "2026-11-02T13:03:22.820Z"
+    },
+    {
+      "id": "mhhqxoq9mmnrtv9261j",
+      "tipo": "DEPOSITO",
+      "nombre": "Regularización",
+      "numeroProducto": "DP-2025-076508",
+      "estado": "ACTIVO",
+      "saldo": 100000,
+      "fechaContratacion": "2025-11-02T13:27:56.508Z",
+      "moneda": "EUR",
+      "tasaInteres": 2,
+      "limiteCredito": 0,
+      "fechaVencimiento": "2026-02-02T13:27:56.508Z"
     }
   ],
   "movimientos": [
@@ -217,6 +243,18 @@
       "tipo": "EGRESO",
       "saldoResultante": -185000,
       "referencia": "HIPOTECA-OCT-2024"
+    }
+  ],
+  "users": [
+    {
+      "id": "1762087774310",
+      "email": "test@test.com",
+      "password": "Test2019!",
+      "nombre": "Juan",
+      "apellido": "Test",
+      "telefono": null,
+      "rol": "USER",
+      "createdAt": "2025-11-02T12:49:34.310Z"
     }
   ]
 }

@@ -28,6 +28,32 @@
       background-color: rgba(255, 255, 255, 0.1);
     }
   }
+
+  .user-menu-button {
+    margin-left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .user-name {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
 
 .app-content {
@@ -46,5 +72,17 @@
   p {
     margin: 0;
     font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-toolbar {
+    .user-name {
+      display: none;
+    }
+
+    a span {
+      display: none;
+    }
   }
 }
